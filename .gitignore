@@ -1,0 +1,42 @@
+/target/
+!.mvn/wrapper/maven-wrapper.jar
+
+### STS ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
+
+### NetBeans ###
+/nbproject/private/
+/build/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+.DS_Store
+main/.DS_Store
+main/src/.DS_Store
+main/src/main/.DS_Store
+main/src/main/java/.DS_Store
+main/src/main/java/com/.DS_Store
+main/src/main/java/com/mjq/.DS_Store
+main/src/main/java/com/mjq/mybatis/.DS_Store
+main/target/
+rabbitmq/src/test/
+redis/target/
+selenium/src/main/resources/
+selenium/src/test/
+spring-web-flux/src/main/resources/
+spring-web-flux/src/test/
+websocket/src/test/
+websocket/target/
