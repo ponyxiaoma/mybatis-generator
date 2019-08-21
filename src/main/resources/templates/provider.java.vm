@@ -1,0 +1,101 @@
+package ${package.Provider};
+
+import ${package.Entity}.${entity};
+import ${package.Mapper}.${table.mapperName};
+import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.jdbc.SQL;
+
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.List;
+
+
+/**
+ * @Description: $!{table.comment}provider
+ * @Author: ${author}
+ * @Date: ${date}
+ **/
+public class ${table.providerName} {
+
+    private static final String baseColumn = ${table.mapperName}.baseColumn;
+
+    #set($getprefix="get")
+    private void where(SQL sql, ${entity} ${table.objectName}) {
+        #foreach($field in ${table.fields})
+        if (${table.objectName}.${getprefix}${field.capitalName}() != null) {
+            sql.WHERE("`${field.name}` = #{${table.objectName}.${field.propertyName}}" );
+        }
+        #end
+    }
+
+    //动态保存
+    public String save(@Param("${table.objectName}" ) ${entity} ${table.objectName}) {
+        return new SQL() {{
+            List<String> columnList = new ArrayList<>();
+            List<String> valueList = new ArrayList<>();
+        #foreach($field in ${table.fields})
+            #if(!${field.keyIdentityFlag})
+            if (${table.objectName}.${getprefix}${field.capitalName}() != null) {
+                columnList.add("`${field.name}`" );
+                valueList.add("#{${table.objectName}.${field.propertyName}}" );
+            }
+            #end
+        #end
+            INSERT_INTO("`${table.name}`" );
+            INTO_COLUMNS(columnList.stream().toArray(String[]::new));
+            INTO_VALUES(valueList.stream().toArray(String[]::new));
+        }}.toString();
+    }
+
+    //动态修改
+    public String updateBy${table.keyCapitalFirstFieldName}(@Param("${table.objectName}" ) ${entity} ${table.objectName}) {
+        return new SQL() {{
+            List<String> setList = new ArrayList<>();
+            UPDATE("`${table.name}`" );
+        #foreach($field in ${table.fields})
+            #if(!${field.keyFlag})
+            if (${table.objectName}.${getprefix}${field.capitalName}() != null) {
+                setList.add("`${field.name}` = #{${table.objectName}.${field.propertyName}}" );
+            }
+            #end
+        #end
+            SET(setList.stream().toArray(String[]::new));
+            WHERE("`${table.primaryKeyName}` = #{${table.objectName}.${table.keyFieldName}}" );
+        }}.toString();
+    }
+
+    //删除
+    public String remove(@Param("${table.objectName}" ) ${entity} ${table.objectName}) {
+        return new SQL() {{
+            DELETE_FROM("`${table.name}`" );
+            where(this, ${table.objectName});
+        }}.toString();
+    }
+
+    public String findBy${entity}(@Param("${table.objectName}" ) ${entity} ${table.objectName}) {
+        return new SQL() {{
+            SELECT(baseColumn);
+            FROM("`${table.name}`" );
+            where(this, ${table.objectName});
+        }}.toString();
+    }
+
+    public String getBy${entity}(@Param("${table.objectName}" ) ${entity} ${table.objectName}) {
+        return new SQL() {{
+            SELECT(baseColumn);
+            FROM("`${table.name}`" );
+            where(this, ${table.objectName});
+        }}.toString();
+    }
+
+    public String saveBatch(@Param("${table.objectName}List") List<${entity}> ${table.objectName}List) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("INSERT INTO `${table.name}` ");
+        sb.append("#foreach($field in ${table.fields})#if(!$field.keyIdentityFlag)`${field.name}`#end#if($foreach.hasNext&&!$field.keyIdentityFlag),#end#end");
+        sb.append("VALUES ");
+        String values = "#foreach($field in ${table.fields})#if(!$field.keyIdentityFlag)#'{'${table.objectName}List[{0}].$field.propertyName}#end#if($foreach.hasNext&&!$field.keyIdentityFlag),#end#end";
+        sb.append(ForeachBuilder.buildForeachSql(values, ${table.objectName}List.size()));
+        return sb.toString();
+    }
+
+}

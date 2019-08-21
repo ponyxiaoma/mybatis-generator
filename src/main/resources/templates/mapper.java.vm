@@ -1,0 +1,43 @@
+package ${package.Mapper};
+
+import ${package.Entity}.${entity};
+import ${package.Provider}.${table.providerName};
+import org.apache.ibatis.annotations.*;
+
+import java.util.List;
+
+/**
+ * @Description: $!{table.comment}mapper
+ * @Author: ${author}
+ * @Date: ${date}
+ **/
+@Mapper
+public interface ${table.mapperName} {
+
+    String baseColumn = "#foreach($field in ${table.fields})`${field.name}`#if($foreach.hasNext),#end #end" ;
+
+    @InsertProvider(type = ${table.providerName}.class, method = "save" )
+    #if(${field.keyIdentityFlag})
+    @Options(useGeneratedKeys = true, keyColumn = "${table.primaryKeyName}", keyProperty = "${table.objectName}.${table.keyFieldName}" )
+    #end
+    int save(@Param("${table.objectName}" ) ${entity} ${table.objectName});
+
+    @UpdateProvider(type = ${table.providerName}.class, method = "updateBy${table.keyCapitalFirstFieldName}" )
+    int updateBy${table.keyCapitalFirstFieldName}(@Param("${table.objectName}" ) ${entity} ${table.objectName});
+
+    @DeleteProvider(type = ${table.providerName}.class, method = "remove" )
+    int remove(@Param("${table.objectName}" ) ${entity} ${table.objectName});
+
+    @SelectProvider(type = ${table.providerName}.class, method = "findBy${entity}" )
+    List<${entity}> findBy${entity}(@Param("${table.objectName}" ) ${entity} ${table.objectName});
+
+    @SelectProvider(type = ${table.providerName}.class, method = "getBy${entity}" )
+    ${entity} getBy${entity}(@Param("${table.objectName}" ) ${entity} ${table.objectName});
+
+    @Select("SELECT " + baseColumn + " FROM `${table.name}` WHERE `${table.primaryKeyName}` = #{${table.keyFieldName}}" )
+    ${entity} getBy${table.keyCapitalFirstFieldName}(@Param("${table.keyFieldName}" ) ${table.keyFieldType} ${table.keyFieldName});
+
+    @InsertProvider(type = ${table.providerName}.class, method = "saveBatch")
+    int saveBatch(@Param("${table.objectName}List") List<${entity}> ${table.objectName}List);
+
+}
